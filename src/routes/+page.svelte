@@ -1,5 +1,5 @@
 <script lang="ts">
-	const MAX_TIME = 5 * 60 * 1000;
+	const MAX_TIME = 10 * 1000;
 
 	// Number of milliseconds
 	let timeA = {
@@ -10,30 +10,32 @@
 		timeElapsed: MAX_TIME / 2,
 		lastTime: Date.now()
 	};
-	let currentPlayer: 'A' | 'B' | 'stop' | 'end' = 'stop';
+	let currentPlayer: 'A' | 'B' | 'stop' = 'stop';
 
 	setInterval(() => {
-		// Make a count down
 		if (currentPlayer === 'A') {
 			timeA.timeElapsed -= Date.now() - timeA.lastTime;
 			timeA.lastTime = Date.now();
 		} else if (currentPlayer === 'B') {
 			timeB.timeElapsed -= Date.now() - timeB.lastTime;
 			timeB.lastTime = Date.now();
-		} else if (currentPlayer === 'end') {
-			timeA.timeElapsed = MAX_TIME / 2;
-			timeB.timeElapsed = MAX_TIME / 2;
-			currentPlayer = 'stop';
 		}
 
 		if (timeA.timeElapsed <= 0) {
 			timeA.timeElapsed = 0;
+			currentPlayer = 'B';
+			timeB.lastTime = Date.now();
 		}
 		if (timeB.timeElapsed <= 0) {
 			timeB.timeElapsed = 0;
+			currentPlayer = 'A';
+			timeA.lastTime = Date.now();
 		}
-		if (timeA.timeElapsed === 0 && timeB.timeElapsed === 0) {
-			currentPlayer = 'end';
+
+		if (timeA.timeElapsed <= 0 && timeB.timeElapsed <= 0) {
+			currentPlayer = 'stop';
+			timeA.timeElapsed = MAX_TIME / 2;
+			timeB.timeElapsed = MAX_TIME / 2;
 		}
 	}, 250);
 
@@ -49,10 +51,12 @@
 			timeA.lastTime = Date.now();
 			timeB.lastTime = Date.now();
 			currentPlayer = mode;
-		} else if (currentPlayer === 'A') {
+		} else if (currentPlayer === 'A' && timeB.timeElapsed > 0) {
 			currentPlayer = 'B';
-		} else if (currentPlayer === 'B') {
+			timeB.lastTime = Date.now();
+		} else if (currentPlayer === 'B' && timeA.timeElapsed > 0) {
 			currentPlayer = 'A';
+			timeA.lastTime = Date.now();
 		}
 	}
 </script>
@@ -60,7 +64,11 @@
 <div class="w-screen h-screen flex flex-col p-3 gap-3">
 	<button
 		class={`btn w-full h-full text-6xl font-bold rotate-180 ${
-			currentPlayer === 'A' ? 'variant-soft-success' : 'variant-soft-surface'
+			timeA.timeElapsed <= 0
+				? 'variant-soft-error'
+				: currentPlayer === 'A'
+				? 'variant-soft-success'
+				: 'variant-soft-surface'
 		}`}
 		on:click={() => switchPlayer('A')}
 	>
@@ -68,7 +76,11 @@
 	</button>
 	<button
 		class={`btn w-full h-full text-6xl font-bold ${
-			currentPlayer === 'B' ? 'variant-soft-success' : 'variant-soft-surface'
+			timeB.timeElapsed <= 0
+				? 'variant-soft-error'
+				: currentPlayer === 'B'
+				? 'variant-soft-success'
+				: 'variant-soft-surface'
 		}`}
 		on:click={() => switchPlayer('B')}
 	>
