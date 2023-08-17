@@ -1,13 +1,77 @@
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
+<script lang="ts">
+	const MAX_TIME = 20 * 1000;
 
-<div class="container h-full mx-auto flex justify-center items-center">
-	<div class="space-y-5">
-		<h1 class="h1">Let's get cracking bones!</h1>
-		<p>Start by exploring:</p>
-		<ul>
-			<li><code class="code">/src/routes/+layout.svelte</code> - barebones layout, the CSS import order is critical!</li>
-			<li><code class="code">/src/app.postcss</code> - minimal css to make the page full screen, may not be relevant for your project</li>
-			<li><code class="code">/src/routes/+page.svelte</code> - this page, you can replace the contents</li>
-		</ul>
-	</div>
+	// Number of milliseconds
+	let timeA = {
+		timeElapsed: MAX_TIME / 2,
+		lastTime: Date.now()
+	};
+	let timeB = {
+		timeElapsed: MAX_TIME / 2,
+		lastTime: Date.now()
+	};
+	let currentPlayer: 'A' | 'B' | 'stop' | 'end' = 'stop';
+
+	setInterval(() => {
+		// Make a count down
+		if (currentPlayer === 'A') {
+			timeA.timeElapsed -= Date.now() - timeA.lastTime;
+			timeA.lastTime = Date.now();
+		} else if (currentPlayer === 'B') {
+			timeB.timeElapsed -= Date.now() - timeB.lastTime;
+			timeB.lastTime = Date.now();
+		} else if (currentPlayer === 'end') {
+			timeA.timeElapsed = MAX_TIME / 2;
+			timeB.timeElapsed = MAX_TIME / 2;
+			currentPlayer = 'stop';
+		}
+
+		if (timeA.timeElapsed <= 0) {
+			timeA.timeElapsed = 0;
+		}
+		if (timeB.timeElapsed <= 0) {
+			timeB.timeElapsed = 0;
+		}
+		if (timeA.timeElapsed === 0 && timeB.timeElapsed === 0) {
+			currentPlayer = 'end';
+		}
+	}, 250);
+
+	function formatTime(ms: number) {
+		// XX:XX
+		const minutes = Math.floor(ms / 60000);
+		const seconds = Math.floor((ms % 60000) / 1000);
+		return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+	}
+
+	function switchPlayer(mode: 'A' | 'B') {
+		if (currentPlayer === 'stop') {
+			timeA.lastTime = Date.now();
+			timeB.lastTime = Date.now();
+			currentPlayer = mode;
+		} else if (currentPlayer === 'A') {
+			currentPlayer = 'B';
+		} else if (currentPlayer === 'B') {
+			currentPlayer = 'A';
+		}
+	}
+</script>
+
+<div class="w-screen h-screen flex flex-col p-3 gap-3">
+	<button
+		class={`btn w-full h-full text-6xl font-bold rotate-180 ${
+			currentPlayer === 'A' ? 'variant-soft-success' : 'variant-soft-surface'
+		}`}
+		on:click={() => switchPlayer('A')}
+	>
+		{formatTime(timeA.timeElapsed)}
+	</button>
+	<button
+		class={`btn w-full h-full text-6xl font-bold ${
+			currentPlayer === 'B' ? 'variant-soft-success' : 'variant-soft-surface'
+		}`}
+		on:click={() => switchPlayer('B')}
+	>
+		{formatTime(timeB.timeElapsed)}
+	</button>
 </div>
