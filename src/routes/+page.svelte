@@ -1,5 +1,5 @@
 <script lang="ts">
-	const MAX_TIME = 10 * 1000;
+	const MAX_TIME = 5 * 60 * 1000;
 
 	// Number of milliseconds
 	let timeA = {
