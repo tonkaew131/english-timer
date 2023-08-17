@@ -71,9 +71,9 @@
 	}
 </script>
 
-<div class="w-screen h-screen flex flex-col p-3 gap-3">
+<div class="w-screen h-screen flex flex-col lg:flex-row p-3 gap-3">
 	<button
-		class={`btn w-full h-full text-6xl font-bold rotate-180 ${
+		class={`btn w-full h-full text-6xl font-bold rotate-180 lg:rotate-0 ${
 			timeA.timeElapsed <= 0
 				? 'variant-soft-error'
 				: currentPlayer === 'A'
